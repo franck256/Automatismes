@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automatismes 3ème - Entraînement</title>
+    <style>
+        :root {
+            --bg-color: #0b0b0c;
+            --card-bg: #16161a;
+            --accent-color: #39ff14; /* Vert McKinsey */
+            --text-main: #ffffff;
+            --text-muted: #8e8e93;
+            --border-color: #2c2c2e;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            max-width: 650px;
+            width: 100%;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 800;
+            margin: 0 0 5px 0;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+            color: var(--text-main);
+        }
+
+        .header .subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .step-panel {
+            display: none;
+        }
+
+        .step-panel.active {
+            display: block;
+        }
+
+        label {
+            display: block;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            background-color: #222227;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 14px;
+            color: var(--text-main);
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent-color);
+        }
+
+        .consigne {
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: var(--text-main);
+        }
+        
+        .question-box {
+            background-color: #1e1e24;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Fractions verticales réelles */
+        .math-fraction {
+            display: inline-flex;
+            flex-direction: column;
+            vertical-align: middle;
+            text-align: center;
+            padding: 0 6px;
+            font-size: 22px;
+            line-height: 1;
+        }
+        .math-num {
+            display: block;
+            border-bottom: 2px solid var(--text-main);
+            padding-bottom: 3px;
+            margin-bottom: 2px;
+        }
+        .math-den {
+            display: block;
+            padding-top: 3px;
+        }
+
+        .math-line {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-button {
+            background-color: #222227;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            text-align: left;
+            transition: background-color 0.2s, border-color 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-button:hover {
+            border-color: var(--accent-color);
+            background-color: #2a2a30;
+        }
+
+        .option-button.selected {
+            border-color: var(--accent-color);
+            background-color: rgba(57, 255, 20, 0.1);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button.action-btn {
+            flex: 1;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            padding: 14px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-start {
+            background-color: var(--accent-color);
+            color: #000000;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            padding: 14px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-submit {
+            background-color: var(--accent-color);
+            color: #000000;
+        }
+
+        .btn-skip {
+            background-color: #2c2c2e;
+            color: #e5e5ea;
+            border: 1px solid #48484a;
+        }
+        
+        .progress-bar {
+            background-color: #2c2c2e;
+            border-radius: 4px;
+            height: 6px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background-color: var(--accent-color);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .indicator {
+            text-align: right;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+
+        .result-box {
+            background: #1e1e24;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-color);
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .result-box h2 {
+            margin-top: 0;
+            font-size: 18px;
+            text-transform: uppercase;
+            color: var(--text-main);
+        }
+
+        .score-display {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--accent-color);
+            margin: 15px 0;
+        }
+        
+        table.bilan {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        table.bilan th, table.bilan td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        table.bilan th {
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+        .row-correct {
+            color: var(--accent-color);
+        }
+
+        .row-incorrect {
+            color: #ff453a;
+        }
+
+        .row-skipped {
+            color: #e5e5ea;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="header">
+        <h1>Fiche d'Automatismes 3ème</h1>
+        <div class="subtitle">Sans calculatrice - Générateur aléatoire</div>
+    </div>
+
+    <!-- PANEL 1 : LOGIN -->
+    <div id="panel-login" class="step-panel active">
+        <div class="form-group">
+            <label for="student-name">Nom et Prénom :</label>
+            <input type="text" id="student-name" placeholder="Ex: Chloé Martin" autocomplete="off">
+        </div>
+        <button class="btn-start" onclick="startTest()">Démarrer la session</button>
+    </div>
+
+    <!-- PANEL 2 : PLAY -->
+    <div id="panel-quiz" class="step-panel">
+        <div class="indicator">Question <span id="current-q">1</span> / 5</div>
+        <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+        
+        <div class="consigne" id="q-consigne">Calcule sans utiliser de calculatrice :</div>
+        
+        <div class="question-box" id="q-box"></div>
+        
+        <div id="input-area" style="background-color: #1e1e24; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color);">
+            <div id="standard-answer-input">
+                <label for="user-answer">Réponse :</label>
+                <input type="text" id="user-answer" placeholder="Inscris uniquement la valeur ou l'unité (Ex: 180 ou 180 km/h)" autocomplete="off">
+            </div>
+
+            <div id="qcm-answer-input" style="display: none;">
+                <label>Choisis la bonne proposition :</label>
+                <div class="options-grid" id="qcm-options"></div>
+            </div>
+            
+            <div class="btn-group">
+                <button class="action-btn btn-skip" onclick="skipQuestion()">Passer ⏭️</button>
+                <button class="action-btn btn-submit" id="btn-validate" onclick="submitAnswer()">Valider</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANEL 3 : RECAP -->
+    <div id="panel-results" class="step-panel">
+        <div class="result-box">
+            <h2>Bilan d'Évaluation</h2>
+            <p>Résultats de : <span id="res-name" style="font-weight: bold; color: #fff;">...</span></p>
+            <div class="score-display" id="res-grade">0 / 5</div>
+        </div>
+
+        <h3 style="margin-top:30px; color: var(--text-main); font-size:15px; text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">Correction détaillée</h3>
+        <table class="bilan">
+            <thead>
+                <tr>
+                    <th>Compétence</th>
+                    <th>Énoncé</th>
+                    <th>Ta réponse</th>
+                    <th>Correction</th>
+                </tr>
+            </thead>
+            <tbody id="bilan-table-body">
+            </tbody>
+        </table>
+
+        <button class="btn-start" style="margin-top: 30px;" onclick="location.reload()">Nouvelle Série</button>
+    </div>
+</div>
+
+<script>
+    let quizQuestions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let studentName = "";
+    let selectedQcmValue = null;
+
+    function parseToVerticalFraction(str) {
+        if (typeof str === 'string' && str.includes('/')) {
+            const cleanStr = str.replace(/[()]/g, '');
+            const parts = cleanStr.split('/');
+            if (parts.length === 2) {
+                return `<span class="math-fraction"><span class="math-num">${parts[0].trim()}</span><span class="math-den">${parts[1].trim()}</span></span>`;
+            }
+        }
+        return str;
+    }
+
+    function formatFormulaString(formula) {
+        return formula.split(' ').map(token => {
+            if (token.includes('/')) return parseToVerticalFraction(token);
+            return token;
+        }).join(' ');
+    }
+
+    // Liste complète des générateurs (conforme aux images fournies)
+    const generators = [
+        // 1. Multiplication de décimaux
+        function() {
+            const a = (Math.floor(Math.random() * 8) + 2) / 10;
+            const b = (Math.floor(Math.random() * 8) + 2) / 10;
+            const val = parseFloat((a * b).toFixed(2));
+            return {
+                type: "Multiplication décimale", isQcm: false,
+                display: `<div class="math-line">${a.toString().replace('.', ',')} × ${b.toString().replace('.', ',')}</div>`,
+                answer: val.toString().replace('.', ','),
+                check: (u) => parseFloat(u.replace(',', '.')) === val
+            };
+        },
+
+        // 2. Écritures de fractions en décimales
+        function() {
+            const data = [{n:3, d:15, a:0.2}, {n:140, d:200, a:0.7}, {n:6, d:40, a:0.15}, {n:12, d:40, a:0.3}];
+            const q = data[Math.floor(Math.random() * data.length)];
+            return {
+                type: "Fraction en décimal", isQcm: false,
+                display: `Donne la forme décimale de : <br><div style="margin: 15px 0;" class="math-line">${parseToVerticalFraction(`${q.n}/${q.d}`)}</div>`,
+                answer: q.a.toString().replace('.', ','),
+                check: (u) => parseFloat(u.replace(',', '.')) === q.a
+            };
+        },
+
+        // 3. Divisions de décimaux
+        function() {
+            const items = [{n:"0,45", d:"0,6", v:0.75}, {n:"0,7", d:"0,5", v:1.4}, {n:"1,8", d:"2,5", v:0.72}];
+            const q = items[Math.floor(Math.random() * items.length)];
+            return {
+                type: "Division de décimaux", isQcm: false,
+                display: `Calcule le quotient suivant : <br><div style="margin: 15px 0;" class="math-line">${parseToVerticalFraction(`${q.n}/${q.d}`)}</div>`,
+                answer: q.v.toString().replace('.', ','),
+                check: (u) => parseFloat(u.replace(',', '.')) === q.v
+            };
+        },
+
+        // 4. Pourcentages
+        function() {
+            const rate = [10, 25, 50, 75][Math.floor(Math.random() * 4)];
+            const val = [40, 80, 120, 200][Math.floor(Math.random() * 4)];
+            const ans = (rate * val) / 100;
+            return {
+                type: "Calcul de pourcentage", isQcm: false,
+                display: `<div class="math-line">${rate}% de ${val}</div>`,
+                answer: ans.toString(),
+                check: (u) => parseFloat(u) === ans
+            };
+        },
+
+        // 5. Hausses et baisses en pourcentage
+        function() {
+            const situations = [
+                { i: "Un sac", p: 45, e: "baisse de 20%", f: 36 },
+                { i: "Un stylo", p: 30, e: "augmente de 20%", f: 36 },
+                { i: "Un livre", p: 80, e: "augmente de 15%", f: 92 }
+            ];
+            const q = situations[Math.floor(Math.random() * situations.length)];
+            return {
+                type: "Évolution en pourcentage", isQcm: false,
+                display: `${q.i} coûte ${q.p} €. Son prix ${q.e}.<br>Quel est son prix final ?`,
+                answer: `${q.f} €`,
+                check: (u) => parseFloat(u.replace(/[^\d.,]/g, '').replace(',', '.')) === q.f
+            };
+        },
+
+        // 6. Évolutions successives
+        function() {
+            const data = [
+                { t: "une hausse de 20% puis une baisse de 10%", txt: "Hausse de 8%", v: 8 },
+                { t: "une baisse de 20% puis une hausse de 20%", txt: "Baisse de 4%", v: -4 }
+            ];
+            const q = data[Math.floor(Math.random() * data.length)];
+            return {
+                type: "Évolutions successives", isQcm: false,
+                display: `Détermine l'évolution globale de : <br><span style="font-size:0.85em; font-weight:normal;">${q.t}</span>`,
+                answer: q.txt,
+                check: (u) => u.toLowerCase().includes(Math.abs(q.v).toString())
+            };
+        },
+
+        // 7. Isoler une variable dans une formule (Ex 11 & 12)
+        function() {
+            const formulas = [
+                { f: "V = d/t", t: "Isoler d", o: ["d = V × t", "d = V/t", "d = t/V"], c: 0 },
+                { f: "E = 1/2 × m × V²", t: "Isoler m", o: ["m = (2 × E)/V²", "m = E/(2 × V²)", "m = 2 × E × V²"], c: 0 }
+            ];
+            const q = formulas[Math.floor(Math.random() * formulas.length)];
+            const formattedFormula = formatFormulaString(q.f);
+            const formattedOptions = q.o.map(opt => formatFormulaString(opt));
+            return {
+                type: "Isoler une variable", isQcm: true,
+                display: `Dans la formule : <br><div style="margin:15px 0; color:var(--accent-color); font-size: 24px;" class="math-line">${formattedFormula}</div>Comment exprime-t-on la variable pour <b>${q.t}</b> ?`,
+                options: formattedOptions, answer: formattedOptions[q.c],
+                check: (u) => u === formattedOptions[q.c]
+            };
+        },
+
+        // 8. NOUVEAU EXERCICE 13 : Calcul de vitesse moyenne (Simples ou mixtes)
+        function() {
+            const itemsEx13 = [
+                { d: "30 km", t: "10 min", ans: 180 }, // 30 km * 6
+                { d: "400 m", t: "50 min", ans: 0.48 }, // 0.4 km / (5/6 h) = 0.4 * 6 / 5 = 0.48 km/h
+                { d: "10 km", t: "2h 30 min", ans: 4 }, // 10 km / 2.5 h = 4 km/h
+                { d: "40 km", t: "3h 20 min", ans: 12 } // 40 km / (10/3 h) = 40 * 3 / 10 = 12 km/h
+            ];
+            const q = itemsEx13[Math.floor(Math.random() * itemsEx13.length)];
+            return {
+                type: "Calcul de vitesse (Ex 13)", isQcm: false,
+                display: `Détermine la vitesse moyenne en <b>km/h</b> d'un objet ayant parcouru : <br><span style="color:var(--accent-color); font-size:1.1em;">${q.d} en ${q.t}</span>`,
+                answer: `${q.ans.toString().replace('.', ',')} km/h`,
+                check: (u) => {
+                    const parsed = parseFloat(u.replace(/[^\d.,]/g, '').replace(',', '.'));
+                    return parsed === q.ans;
+                }
+            };
+        },
+
+        // 9. NOUVEAU EXERCICE 14 : Calcul de vitesse moyenne (Variantes)
+        function() {
+            const itemsEx14 = [
+                { d: "50 km", t: "20 min", ans: 150 }, // 50 * 3
+                { d: "30 km", t: "45 min", ans: 40 },  // 30 / 0.75 = 40
+                { d: "80 km", t: "24 min", ans: 200 }, // 80 / (24/60) = 80 / 0.4 = 200
+                { d: "10 km", t: "1h 15 min", ans: 8 }  // 10 / 1.25 = 8
+            ];
+            const q = itemsEx14[Math.floor(Math.random() * itemsEx14.length)];
+            return {
+                type: "Calcul de vitesse (Ex 14)", isQcm: false,
+                display: `Détermine la vitesse moyenne en <b>km/h</b> d'un objet ayant parcouru : <br><span style="color:var(--accent-color); font-size:1.1em;">${q.d} en ${q.t}</span>`,
+                answer: `${q.ans.toString().replace('.', ',')} km/h`,
+                check: (u) => {
+                    const parsed = parseFloat(u.replace(/[^\d.,]/g, '').replace(',', '.'));
+                    return parsed === q.ans;
+                }
+            };
+        }
+    ];
+
+    function buildQuiz() {
+        quizQuestions = [];
+        const shuffled = [...generators].sort(() => 0.5 - Math.random());
+        for (let i = 0; i < 5; i++) quizQuestions.push(shuffled[i]());
+    }
+
+    function startTest() {
+        const nameInput = document.getElementById("student-name").value.trim();
+        if (nameInput === "") { alert("Veuillez inscrire ton nom !"); return; }
+        studentName = nameInput;
+        buildQuiz();
+        showPanel("panel-quiz");
+        loadQuestion();
+    }
+
+    function showPanel(panelId) {
+        document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById(panelId).classList.add('active');
+    }
+
+    function loadQuestion() {
+        if (currentIndex >= 5) { endTest(); return; }
+        const q = quizQuestions[currentIndex];
+        document.getElementById("current-q").innerText = currentIndex + 1;
+        document.getElementById("q-box").innerHTML = q.display;
+
+        if (q.isQcm) {
+            document.getElementById("standard-answer-input").style.display = "none";
+            document.getElementById("qcm-answer-input").style.display = "block";
+            const optionsDiv = document.getElementById("qcm-options");
+            optionsDiv.innerHTML = ""; selectedQcmValue = null;
+            q.options.forEach(opt => {
+                const btn = document.createElement("button");
+                btn.className = "option-button";
+                btn.innerHTML = `<div class="math-line">${opt}</div>`; 
+                btn.onclick = () => {
+                    document.querySelectorAll('.option-button').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected'); selectedQcmValue = opt;
+                };
+                optionsDiv.appendChild(btn);
+            });
+        } else {
+            document.getElementById("standard-answer-input").style.display = "block";
+            document.getElementById("qcm-answer-input").style.display = "none";
+            document.getElementById("user-answer").value = "";
+            document.getElementById("user-answer").focus();
+        }
+        document.getElementById("progress-fill").style.width = (currentIndex / 5) * 100 + "%";
+    }
+
+    function submitAnswer() {
+        const q = quizQuestions[currentIndex];
+        let userAnswer = q.isQcm ? selectedQcmValue : document.getElementById("user-answer").value.trim();
+        if (!userAnswer) { alert("Réponds à la question avant de valider !"); return; }
+        q.savedAns = userAnswer;
+        q.status = q.check(userAnswer) ? "correct" : "incorrect";
+        if (q.status === "correct") score++;
+        currentIndex++; loadQuestion();
+    }
+
+    function skipQuestion() {
+        const q = quizQuestions[currentIndex];
+        q.status = "skipped"; q.savedAns = "Passé ⏭️";
+        currentIndex++; loadQuestion();
+    }
+
+    function endTest() {
+        showPanel("panel-results");
+        document.getElementById("res-name").innerText = studentName;
+        const displayGrade = document.getElementById("res-grade");
+        displayGrade.innerText = `${score} / 5`;
+        displayGrade.style.color = score >= 4 ? "var(--accent-color)" : (score >= 2.5 ? "#ff9500" : "#ff453a");
+
+        const tableBody = document.getElementById("bilan-table-body");
+        tableBody.innerHTML = ""; 
+        quizQuestions.forEach(q => {
+            const row = document.createElement("tr");
+            row.className = q.status === "correct" ? "row-correct" : (q.status === "skipped" ? "row-skipped" : "row-incorrect");
+            const badge = q.status === "correct" ? `<span style="color:var(--accent-color); font-weight:bold;">Correct ✅</span>` : `<div class="math-line" style="font-weight:bold;">${q.answer}</div>`;
+            row.innerHTML = `<td><strong>${q.type}</strong></td><td>${q.display}</td><td><div class="math-line">${q.savedAns}</div></td><td>${badge}</td>`;
+            tableBody.appendChild(row);
+        });
+    }
+
+    document.getElementById("user-answer").addEventListener("keyup", (e) => { if (e.key === "Enter") submitAnswer(); });
+</script>
+</body>
+</html>
